@@ -1,0 +1,11 @@
+{% extends 'main/pass.html' %}
+
+{% block content %}
+
+{% super.content %}
+
+{% endblock content %}
+{% block links %}
+<a href="{% url 'update_pass_year' pass.pk %}">update</a>
+<a href="{% url 'delete_pass_year' pass.pk  %}">delete</a>
+{% endblock links %}

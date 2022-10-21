@@ -1,0 +1,11 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+<h2>{{car.name}}</h2>
+
+<a href="{% url 'update_car' car.pk %}">update_car</a>
+<a href="{% url 'delete_car' car.pk  %}">delete_car</a>
+
+
+{% endblock content %}
