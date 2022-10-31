@@ -1,8 +1,6 @@
 from django.forms import ModelForm
 from .models import *
 
-from urllib import request
-
 
 class CarForm(ModelForm):
     class Meta:

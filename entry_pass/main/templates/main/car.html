@@ -3,12 +3,37 @@
 {% block content %}
 
 <h2>{{car.name}}</h2>
-{% if passes %}
-{% for pass in passes %}
-<p>{{pass}}</p>
-{% endfor %}
 
-{% endif %}
+<div class="row">
+    {% if annul_passes %}
+    годовые:
+    {% for pass in annul_passes %}
+    <div class="col-8">
+        {{pass}}
+    </div>
+    <div class="col">
+        <a href="{% url 'update_pass' pass.pk %}">update_pass</a>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+
+    {% if one_time_passes %}
+    разовые:
+    {% for pass in one_time_passes %}
+    <div class="col-8">
+        {{pass}}
+    </div>
+    <div class="col">
+        <a href="{% url 'update_pass' pass.pk %}">update_pass</a>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+</div>
+
+
+
 
 <a href="{% url 'update_car' car.pk %}">update_car</a>
 <a href="{% url 'delete_car' car.pk  %}">delete_car</a>

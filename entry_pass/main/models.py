@@ -1,6 +1,5 @@
 from django.db import models
 from django.shortcuts import reverse
-from django.utils import timezone
 from django.conf import settings
 from datetime import datetime, timedelta
 
@@ -63,10 +62,12 @@ class Pass(models.Model):
     def save(self, *args, **kwargs):
         if self.start is None:
             self.start = datetime.now().date()
-        if self.duration_type == 'annual':
-            self.end = self.start + timedelta(days=364)
-        else:
-            self.end = self.start + timedelta(days=9)
+        if self.end is None:
+            if self.duration_type == 'annual':
+                self.end = self.start + timedelta(days=364)
+            else:
+                self.end = self.start + timedelta(days=9)
+        self.can_be_extended = self.end + timedelta(days=-80)
         super(Pass, self).save(*args, **kwargs)
 
     class Meta:

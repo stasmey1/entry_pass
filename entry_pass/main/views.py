@@ -33,6 +33,8 @@ class DetailCar(DetailView):
     def get_context_data(self, **kwargs):
         context = super(DetailCar, self).get_context_data(**kwargs)
         context['passes'] = Pass.objects.filter(car=self.get_object().pk)
+        context['annul_passes'] = Pass.objects.filter(car=self.get_object().pk, duration_type='annual')
+        context['one_time_passes'] = Pass.objects.filter(car=self.get_object().pk, duration_type='one-time')
         return context
 
 
@@ -51,7 +53,6 @@ def add_pass(request):
     form = PassForm()
     template = 'main\pass_form.html'
     return render(request, template, locals())
-
 
 
 class UpdatePass(PassMixin, UpdateView):
