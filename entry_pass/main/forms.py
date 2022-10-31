@@ -1,6 +1,8 @@
 from django.forms import ModelForm
 from .models import *
 
+from urllib import request
+
 
 class CarForm(ModelForm):
     class Meta:
@@ -8,13 +10,7 @@ class CarForm(ModelForm):
         fields = '__all__'
 
 
-class PassYearForm(ModelForm):
+class PassForm(ModelForm):
     class Meta:
-        model = PassYear
-        fields = '__all__'
-
-
-class PassTenDays(ModelForm):
-    class Meta:
-        model = PassTenDays
+        model = Pass
         fields = '__all__'

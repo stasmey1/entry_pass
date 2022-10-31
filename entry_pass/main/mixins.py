@@ -8,15 +8,10 @@ class CarMixin:
     form_class = CarForm
 
 
-class PassYearMixin:
-    model = PassYear
+class PassMixin:
+    model = Pass
     template_name = 'main\\pass_form.html'
-    form_class = PassYearForm
+    form_class = PassForm
 
-
-class PassTenDaysMixin:
-    model = PassTenDays
-    template_name = 'main\\pass_form.html'
-    form_class = PassTenDays
 
 
