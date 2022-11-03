@@ -2,44 +2,49 @@
 
 {% block content %}
 
-<h2>{{car.name}}</h2>
+<h2>Транспортное средство {{car.name}}</h2>
+<a href="{% url 'update_car' car.pk %}">update_car</a>
+<a href="{% url 'delete_car' car.pk  %}">delete_car</a>
+<br>
+<br>
 
 <div class="row">
-    {% if annul_passes %}
-    годовые:
-    {% for pass in annul_passes %}
-    <div class="col-8">
-        {{pass}}
+    <div class="col-6">
+        <h3><a href="{% url 'add_pass_one_time' car.pk %}">Добавить разовый пропуск</a></h3>
+
+
+        {% if one_time_passes %}
+        Разовые:
+        {% for pass in one_time_passes %}
+
+        <p>{{pass.start|date:"d.m.Y"}} - {{pass.end|date:"d.m.Y"}} <a href="{% url 'update_pass_one_time' pass.pk %}">update</a>/<a href="{% url 'delete_pass_one_time' pass.pk %}">delete</a> </p>
+
+        {% endfor %}
+        {% endif %}
     </div>
+
     <div class="col">
-        <a href="{% url 'update_pass' pass.pk %}">update_pass</a>
-    </div>
-    {% endfor %}
-    {% endif %}
+        <h3><a href="{% url 'add_pass_year' car.pk %}">Добавить годовой пропуск</a></h3>
 
 
-    {% if one_time_passes %}
-    разовые:
-    {% for pass in one_time_passes %}
-    <div class="col-8">
-        {{pass}}
-    </div>
-    <div class="col">
-        <a href="{% url 'update_pass' pass.pk %}">update_pass</a>
-    </div>
-    {% endfor %}
-    {% endif %}
+        {% if year_passes %}
+        Годовые:
+        {% for pass in year_passes %}
 
+        <p>{{pass.start|date:"d.m.Y"}} - {{pass.end|date:"d.m.Y"}} <a href="{% url 'update_pass_year' pass.pk %}">update</a>/<a href="{% url 'delete_pass_year' pass.pk %}">delete</a></p>
+        <p>Можно продлить с {{pass.date_can_be_extended|date:"d.m.Y"}}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
 </div>
 
 
 
-
-<a href="{% url 'update_car' car.pk %}">update_car</a>
-<a href="{% url 'delete_car' car.pk  %}">delete_car</a>
 <br>
 
-<a href="{% url 'add_pass'  %}">add_pass</a>
+
+
+
 
 
 {% endblock content %}

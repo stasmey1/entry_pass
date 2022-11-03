@@ -9,9 +9,12 @@ urlpatterns = [
     path('update_car/<int:pk>/', UpdateCar.as_view(), name='update_car'),
     path('delete_car/<int:pk>/', DeleteCar.as_view(), name='delete_car'),
 
-    path('pass/<int:pk>/', DetailPass.as_view(), name='pass'),
-    path('add_pass/', add_pass, name='add_pass'),
-    path('update_pass/<int:pk>/', UpdatePass.as_view(), name='update_pass'),
-    path('delete_pass/<int:pk>/', DeletePass.as_view(), name='delete_pass'),
+    path('add_pass_year/<int:pk>/', add_pass_year, name='add_pass_year'),
+    path('update_pass_year/<int:pk>/', UpdatePassYear.as_view(), name='update_pass_year'),
+    path('delete_pass_year/<int:pk>/', DeletePassYear.as_view(), name='delete_pass_year'),
+
+    path('add_pass_one_time/<int:pk>/', add_pass_one_time, name='add_pass_one_time'),
+    path('update_pass_one_time/<int:pk>/', UpdatePassOneTime.as_view(), name='update_pass_one_time'),
+    path('delete_pass_one_time/<int:pk>/', DeletePassOneTime.as_view(), name='delete_pass_one_time'),
 
 ]

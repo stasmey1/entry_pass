@@ -22,6 +22,9 @@ class Car(models.Model):
     number_check_card = models.CharField('Номер диагностической карты', max_length=20, blank=True, null=True)
     date_check_card = models.DateField('Срок действия диагностической карты', blank=True, null=True)
 
+    date_extended_pass_year = models.DateField('Можно продлить годовой пропуск', blank=True, null=True)
+    date_extended_pass_one_time = models.DateField('Можно продлить разовый пропуск', blank=True, null=True)
+
     def __str__(self):
         return self.name
 
@@ -38,38 +41,47 @@ class Pass(models.Model):
         ('day', 'Дневной'),
         ('night', 'Ночной')
     )
-    DURATION_TYPE = (
-        ('annual', 'Годовой'),
-        ('one-time', 'Разовый')
-    )
 
-    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='passes', verbose_name='Транспортное средство',
-                            null=True)
-    duration_type = models.CharField('Тип', max_length=10, choices=DURATION_TYPE, null=True)
     times_of_day = models.CharField('Вид', max_length=10, choices=TIMES_OF_DAY, null=True)
     start = models.DateField('Дата начала', blank=True, null=True)
     end = models.DateField('Дата окончания', blank=True, null=True)
-    can_be_extended = models.DateField('Можно продлить', blank=True, null=True)
     current = models.BooleanField('Действующий', default=True)
     canceled = models.BooleanField('Аннулирован', default=False)
-
-    def __str__(self):
-        return f'{self.duration_type}_{self.times_of_day}_{self.start}- {self.end}'
-
-    def get_absolute_url(self):
-        return reverse('pass', kwargs={'pk': self.pk})
-
-    def save(self, *args, **kwargs):
-        if self.start is None:
-            self.start = datetime.now().date()
-        if self.end is None:
-            if self.duration_type == 'annual':
-                self.end = self.start + timedelta(days=364)
-            else:
-                self.end = self.start + timedelta(days=9)
-        self.can_be_extended = self.end + timedelta(days=-80)
-        super(Pass, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Пропуск'
         verbose_name_plural = 'Пропуски'
+
+
+class PassYear(Pass):
+    title = models.CharField(default='Годовой пропуск', max_length=20, blank=True)
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='year_passes',
+                            verbose_name='Транспортное средство', blank=True,
+                            null=True)
+
+    def __str__(self):
+        return f'pass_year_{self.times_of_day}_{self.start}- {self.end}'
+
+    def get_absolute_url(self):
+        return reverse('pass_year', kwargs={'pk': self.pk})
+
+    class Meta:
+        verbose_name = 'Годовой пропуск'
+        verbose_name_plural = 'Годовые пропуски'
+
+
+class PassOneTime(Pass):
+    title = models.CharField(default='Разовый пропуск', max_length=20, blank=True)
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='one_time_passes',
+                            verbose_name='Транспортное средство', blank=True,
+                            null=True)
+
+    def __str__(self):
+        return f'pass_one_time_{self.times_of_day}_{self.start}- {self.end}'
+
+    def get_absolute_url(self):
+        return reverse('pass_one_time', kwargs={'pk': self.pk})
+
+    class Meta:
+        verbose_name = 'Разовый пропуск'
+        verbose_name_plural = 'Разовые пропуски'

@@ -4,5 +4,6 @@ from .models import *
 # Register your models here.
 
 admin.site.register(Car)
-admin.site.register(Pass)
+admin.site.register(PassYear)
+admin.site.register(PassOneTime)
 
