@@ -1,13 +1,31 @@
 from django.db import models
 from django.shortcuts import reverse
 from django.conf import settings
-from datetime import datetime, timedelta
+
+
+class Owner(models.Model):
+    name = models.CharField('Имя', max_length=50, default='noname')
+    contacts = models.CharField('Контакты', max_length=255, blank=True, null=True)
+    info = models.TextField('Инофрмация', blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('owner', kwargs={'pk': self.pk})
+
+    class Meta:
+        verbose_name = 'Владелец'
+        verbose_name_plural = 'Владельцы'
 
 
 class Car(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cars',
                              verbose_name='Пользователь', blank=True,
                              null=True)
+    owner = models.ForeignKey(Owner, on_delete=models.SET_NULL, related_name='cars',
+                              verbose_name='Владелец ТС', blank=True,
+                              null=True)
     name = models.CharField('Наименование', max_length=30)
     register_number = models.CharField('ГРН', max_length=10, blank=True, null=True)
     vin = models.CharField('VIN', max_length=20, blank=True, null=True)
@@ -22,8 +40,13 @@ class Car(models.Model):
     number_check_card = models.CharField('Номер диагностической карты', max_length=20, blank=True, null=True)
     date_check_card = models.DateField('Срок действия диагностической карты', blank=True, null=True)
 
-    date_extended_pass_year = models.DateField('Можно продлить годовой пропуск', blank=True, null=True)
-    date_extended_pass_one_time = models.DateField('Можно продлить разовый пропуск', blank=True, null=True)
+    date_extended_pass_year_day = models.DateField('Можно продлить годовой дневной пропуск', blank=True,
+                                                   null=True)
+    date_extended_pass_year_night = models.DateField('Можно продлить годовой ночной пропуск', blank=True,
+                                                     null=True)
+    date_extended_pass_one_time = models.DateField('Можно продлить разовый пропуск', blank=True,
+                                                   null=True)
+
 
     def __str__(self):
         return self.name

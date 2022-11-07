@@ -1,25 +1,37 @@
 {% extends 'main/base.html' %}
 
 
-
-
-
 {% block content %}
-<div class="row">
-    <a href="{% url 'add_car' %}">add_car</a>
-</div>
+<a href="{% url 'add_car' %}" class="btn btn-primary mb-3">Добавить ТС</a>
 
 
-{% for car in cars %}
 <div class="row">
-    <div class="col-1"><a href="{{car.get_absolute_url}}">{{car.name}}</a></div>
-    <div class="col">
-        {% for pass in car.pass_year.all %}
-        {{pass.start}} {{pass.end}} <a href="{% url 'pass_year' pass.pk %}">годовой</a>
-        {% endfor %}
+    {% for car in cars %}
+    <div class="col-4">
+        <div class="card">
+            <h5 class="card-header text-center"><a href="{{car.get_absolute_url}}">{{car.name}}</a></h5>
+            <div class="card-body">
+                <h5 class="card-title">
+                    {% for pass in car.year_passes.all %}
+                    {% if pass.times_of_day == 'day' %}
+                    дневной {{pass.start|date:"d.m.Y"}} - {{pass.end|date:"d.m.Y"}}
+                    <br>
+                    <span style="color:{{car.color_extended_pass_year_day}}">можно продлить c {{car.date_extended_pass_year_day|date:"d.m.Y"}}
+                    {% endif %}
+                    <br>
+                    {% if pass.times_of_day == 'night' %}
+                    ночной {{pass.start|date:"d.m.Y"}} - {{pass.end|date:"d.m.Y"}}
+                       <br>
+                    можно продлить c {{car.date_extended_pass_year_night}}
+                    {% endif %}
+
+                    {% endfor %}
+                </h5>
+            </div>
+        </div>
     </div>
+    {% endfor %}
 </div>
-{% endfor %}
 
 
 {% endblock content %}

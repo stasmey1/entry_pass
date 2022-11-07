@@ -1,13 +1,6 @@
 from django.forms import ModelForm
 from .models import *
 
-
-class CarForm(ModelForm):
-    class Meta:
-        model = Car
-        exclude = ['user', ]
-
-
 fields = ['times_of_day', 'start', 'end', ]
 
 
@@ -23,6 +16,12 @@ class AddPassOneTimeForm(ModelForm):
         fields = fields
 
 
+class CarForm(ModelForm):
+    class Meta:
+        model = Car
+        exclude = ['user', ]
+
+
 class UpdatePassYearForm(ModelForm):
     class Meta:
         model = PassYear
@@ -32,4 +31,10 @@ class UpdatePassYearForm(ModelForm):
 class UpdatePassOneTimeForm(ModelForm):
     class Meta:
         model = PassOneTime
+        fields = '__all__'
+
+
+class AddOwnerForm(ModelForm):
+    class Meta:
+        model = Owner
         fields = '__all__'

@@ -6,14 +6,10 @@ from .mixins import *
 from .utils import *
 
 
-class HomePage(ListView):
-    model = Car
-    context_object_name = 'cars'
-    template_name = 'main\index.html'
-
-
-def index(request):
+def home_page(request):
     cars = Car.objects.all()
+    for car in cars:
+        get_color(car)
     template = 'main\index.html'
     return render(request, template, locals())
 
@@ -33,8 +29,9 @@ class DetailCar(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(DetailCar, self).get_context_data(**kwargs)
-        context['year_passes'] = PassYear.objects.filter(car=self.get_object().pk)
-        context['one_time_passes'] = PassOneTime.objects.filter(car=self.get_object().pk)
+        context['year_pass_day'] = PassYear.objects.filter(car=self.get_object().pk).filter(times_of_day='day')
+        context['year_pass_night'] = PassYear.objects.filter(car=self.get_object().pk).filter(times_of_day='night')
+        context['one_time_passes'] = PassOneTime.objects.filter(car=self.get_object().pk).order_by('-start')
         return context
 
 
