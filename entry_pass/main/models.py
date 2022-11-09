@@ -41,14 +41,12 @@ class Car(models.Model):
     number_check_card = models.CharField('Номер диагностической карты', max_length=20, blank=True, null=True)
     date_check_card = models.DateField('Срок действия диагностической карты', blank=True, null=True)
 
-
     can_update_pass_year_day = models.BooleanField('Можно продлить годовой дневной', blank=True, default=False)
     date_of_application_pass_year_day = models.DateField('Дата подачи заявки на годовой дневной', blank=True,
                                                          null=True)
     requested_year_day_pass = models.BooleanField('Подал заявку на годовой дневной', blank=True, default=False)
     date_new_pass_year_day = models.DateField('Дата продления годового дневного', blank=True,
                                               null=True)
-
 
     can_update_pass_year_night = models.BooleanField('Можно продлить годовой ночной', blank=True, default=False)
     date_of_application_pass_year_night = models.DateField('Дата подачи заявки на годовой ночной', blank=True,
@@ -57,13 +55,12 @@ class Car(models.Model):
     date_new_pass_year_night = models.DateField('Дата продления годового ночного', blank=True,
                                                 null=True)
 
-
     can_update_pass_one_time = models.BooleanField('Можно продлить разовый', blank=True, default=False)
     date_of_application_pass_one_time = models.DateField('Дата подачи заявки на разовый', blank=True,
                                                          null=True)
     requested_pass_one_time = models.BooleanField('Подал заявку на разовый', blank=True, default=False)
     date_new_pass_one_time = models.DateField('Можно продлить разовый', blank=True,
-                                             null=True)
+                                              null=True)
 
     # проверка годового дневного
     def check_pass_year_day(self):
