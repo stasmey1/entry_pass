@@ -1,0 +1,15 @@
+{% extends 'main/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<h1>{{times_of_day}}</h1>
+<div class="col-4">
+
+
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <input type="submit" name="add pass">
+</form>
+</div>
+{% endblock content %}

@@ -1,0 +1,17 @@
+{% extends 'main/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<h1>Владельцы ТС</h1>
+<div class="col-4">
+
+
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <input type="submit" name="add">
+</form>
+
+    </div>
+
+{% endblock content %}

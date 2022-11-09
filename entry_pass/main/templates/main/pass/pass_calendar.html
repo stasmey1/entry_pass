@@ -1,0 +1,32 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+<h3>Дневные</h3>
+
+{% for car in cars_day %}
+    <h5><a href="{{car.get_absolute_url}}">{{car.name}}</a>
+    {% if car.date_of_application_pass_year_day %}
+        подача заявки -  {{car.date_of_application_pass_year_day|date:"d.m.Y"}}</h5>
+    {% endif %}
+{% endfor %}
+
+<hr>
+
+
+<h3>Ночные</h3>
+
+{% for car in cars_night %}
+    <h5><a href="{{car.get_absolute_url}}">{{car.name}}</a>
+        {% if car.date_of_application_pass_year_night %}
+            подача заявки -  {{car.date_of_application_pass_year_night|date:"d.m.Y"}}
+        {% endif %}
+        {% if car.owner %}
+        <a href="{% url 'owner' car.owner.pk  %}">{{car.owner.name}}</a>
+
+        {% endif %}
+        </h5>
+{% endfor %}
+
+{% endblock content %}
+

@@ -1,0 +1,12 @@
+{% extends 'main/base.html' %}
+
+
+{% block content %}
+<a href="{% url 'add_owner' %}" class="btn btn-primary mb-3">Добавить владельца ТС</a>
+
+{% for owner in owners %}
+<h3><a href="{% url 'owner' owner.pk %}">{{owner.name}}</a></h3>
+{% endfor %}
+
+
+{% endblock content %}

@@ -1,10 +1,11 @@
 from django.db import models
 from django.shortcuts import reverse
 from django.conf import settings
+from datetime import datetime, timedelta
 
 
 class Owner(models.Model):
-    name = models.CharField('Имя', max_length=50, default='noname')
+    name = models.CharField('Имя', max_length=50)
     contacts = models.CharField('Контакты', max_length=255, blank=True, null=True)
     info = models.TextField('Инофрмация', blank=True, null=True)
 
@@ -40,13 +41,89 @@ class Car(models.Model):
     number_check_card = models.CharField('Номер диагностической карты', max_length=20, blank=True, null=True)
     date_check_card = models.DateField('Срок действия диагностической карты', blank=True, null=True)
 
-    date_extended_pass_year_day = models.DateField('Можно продлить годовой дневной пропуск', blank=True,
-                                                   null=True)
-    date_extended_pass_year_night = models.DateField('Можно продлить годовой ночной пропуск', blank=True,
-                                                     null=True)
-    date_extended_pass_one_time = models.DateField('Можно продлить разовый пропуск', blank=True,
-                                                   null=True)
 
+    can_update_pass_year_day = models.BooleanField('Можно продлить годовой дневной', blank=True, default=False)
+    date_of_application_pass_year_day = models.DateField('Дата подачи заявки на годовой дневной', blank=True,
+                                                         null=True)
+    requested_year_day_pass = models.BooleanField('Подал заявку на годовой дневной', blank=True, default=False)
+    date_new_pass_year_day = models.DateField('Дата продления годового дневного', blank=True,
+                                              null=True)
+
+
+    can_update_pass_year_night = models.BooleanField('Можно продлить годовой ночной', blank=True, default=False)
+    date_of_application_pass_year_night = models.DateField('Дата подачи заявки на годовой ночной', blank=True,
+                                                           null=True)
+    requested_year_night_pass = models.BooleanField('Подал заявку на годовой ночной', blank=True, default=False)
+    date_new_pass_year_night = models.DateField('Дата продления годового ночного', blank=True,
+                                                null=True)
+
+
+    can_update_pass_one_time = models.BooleanField('Можно продлить разовый', blank=True, default=False)
+    date_of_application_pass_one_time = models.DateField('Дата подачи заявки на разовый', blank=True,
+                                                         null=True)
+    requested_pass_one_time = models.BooleanField('Подал заявку на разовый', blank=True, default=False)
+    date_new_pass_one_time = models.DateField('Можно продлить разовый', blank=True,
+                                             null=True)
+
+    # проверка годового дневного
+    def check_pass_year_day(self):
+        if PassYear.objects.filter(car=self.pk, times_of_day='day').count():
+            pass_year_day = PassYear.objects.get(car=self.pk, times_of_day='day')
+            self.date_of_application_pass_year_day = pass_year_day.end + timedelta(days=-80)
+            if self.date_of_application_pass_year_day <= datetime.now().date():
+                self.can_update_pass_year_day = True
+            else:
+                self.can_update_pass_year_day = False
+            self.date_new_pass_year_day = pass_year_day.end + timedelta(days=1)
+        else:
+            self.can_update_pass_year_day = True
+            self.date_of_application_pass_year_day = datetime.now().date()
+            self.date_new_pass_year_day = None
+        self.save()
+
+    # проверка годового ночного
+    def check_pass_year_night(self):
+        if PassYear.objects.filter(car=self.pk, times_of_day='night').count():
+            pass_year_night = PassYear.objects.filter(car=self.pk, times_of_day='night').order_by('-end').first()
+            self.date_of_application_pass_year_night = pass_year_night.end + timedelta(days=-80)
+            if self.date_of_application_pass_year_night <= datetime.now().date():
+                self.can_update_pass_year_night = True
+            else:
+                self.can_update_pass_year_night = False
+            self.date_new_pass_year_day = pass_year_night.end + timedelta(days=1)
+        else:
+            self.can_update_pass_year_night = True
+            self.date_of_application_pass_year_night = datetime.now().date()
+            self.date_new_pass_year_night = None
+        self.save()
+
+    # проверка разового
+    def check_passes_one_time(self):
+        if PassOneTime.objects.filter(car=self.pk).count():
+            count_one_time_passes = PassOneTime.objects.filter(car=self.pk).count()
+            # если создана первая запись
+            if count_one_time_passes == 1:
+                self.can_update_pass_one_time = True
+                self.date_of_application_pass_one_time = PassOneTime.objects.get(car=self.pk).end + timedelta(days=1)
+                self.date_new_pass_one_time = self.date_of_application_pass_one_time + timedelta(days=1)
+            elif count_one_time_passes > 1:
+                penultimate_pass_one_time = PassOneTime.objects.filter(car=self.pk).order_by('-end')[:2][1]
+                if penultimate_pass_one_time.end + timedelta(days=30) > datetime.now().date():
+                    self.can_update_pass_one_time = False
+                else:
+                    self.can_update_pass_one_time = True
+                self.date_of_application_pass_one_time = penultimate_pass_one_time.end + timedelta(days=1)
+                self.date_new_pass_one_time = self.date_of_application_pass_one_time + timedelta(days=1)
+        else:
+            self.can_update_pass_one_time = True
+            self.date_of_application_pass_one_time = datetime.now().date()
+            self.date_new_pass_one_time = self.date_of_application_pass_one_time + timedelta(days=1)
+        self.save()
+
+    def update_passes_status(self):
+        self.check_pass_year_day()
+        self.check_pass_year_night()
+        self.check_passes_one_time()
 
     def __str__(self):
         return self.name

@@ -19,7 +19,9 @@ class AddPassOneTimeForm(ModelForm):
 class CarForm(ModelForm):
     class Meta:
         model = Car
-        exclude = ['user', ]
+        exclude = ['user', 'can_update_pass_year_day', 'date_of_application_pass_year_day', 'date_new_pass_year_day',
+                   'can_update_pass_year_night', 'date_of_application_pass_year_night', 'date_new_pass_year_night',
+                   'can_update_pass_one_time', 'date_of_application_pass_one_time', 'date_new_pass_one_time']
 
 
 class UpdatePassYearForm(ModelForm):
@@ -34,7 +36,7 @@ class UpdatePassOneTimeForm(ModelForm):
         fields = '__all__'
 
 
-class AddOwnerForm(ModelForm):
+class OwnerForm(ModelForm):
     class Meta:
         model = Owner
         fields = '__all__'
