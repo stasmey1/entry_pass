@@ -1,16 +1,22 @@
 from django.forms import ModelForm
 from .models import *
 
-fields = ['times_of_day', 'start', 'end', ]
+fields = ['start', 'end', ]
 
 
-class AddPassYearForm(ModelForm):
+class PassDayYearForm(ModelForm):
     class Meta:
-        model = PassYear
+        model = PassDayYear
         fields = fields
 
 
-class AddPassOneTimeForm(ModelForm):
+class PassNightYearForm(ModelForm):
+    class Meta:
+        model = PassNightYear
+        fields = fields
+
+
+class PassOneTimeForm(ModelForm):
     class Meta:
         model = PassOneTime
         fields = fields
@@ -24,16 +30,22 @@ class CarForm(ModelForm):
                    'can_update_pass_one_time', 'date_of_application_pass_one_time', 'date_new_pass_one_time']
 
 
-class UpdatePassYearForm(ModelForm):
-    class Meta:
-        model = PassYear
-        fields = '__all__'
+# class UpdatePassDayYearForm(ModelForm):
+#     class Meta:
+#         model = PassDayYear
+#         fields = '__all__'
+#
+#
+# class UpdatePassNightYearForm(ModelForm):
+#     class Meta:
+#         model = PassNightYear
+#         fields = '__all__'
 
 
-class UpdatePassOneTimeForm(ModelForm):
-    class Meta:
-        model = PassOneTime
-        fields = '__all__'
+# class UpdatePassOneTimeForm(ModelForm):
+#     class Meta:
+#         model = PassOneTime
+#         fields = '__all__'
 
 
 class OwnerForm(ModelForm):

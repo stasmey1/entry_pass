@@ -41,6 +41,7 @@ class Car(models.Model):
     number_check_card = models.CharField('Номер диагностической карты', max_length=20, blank=True, null=True)
     date_check_card = models.DateField('Срок действия диагностической карты', blank=True, null=True)
 
+    # дневные годовые
     can_update_pass_year_day = models.BooleanField('Можно продлить годовой дневной', blank=True, default=False)
     date_of_application_pass_year_day = models.DateField('Дата подачи заявки на годовой дневной', blank=True,
                                                          null=True)
@@ -48,6 +49,7 @@ class Car(models.Model):
     date_new_pass_year_day = models.DateField('Дата продления годового дневного', blank=True,
                                               null=True)
 
+    # ночные годовые
     can_update_pass_year_night = models.BooleanField('Можно продлить годовой ночной', blank=True, default=False)
     date_of_application_pass_year_night = models.DateField('Дата подачи заявки на годовой ночной', blank=True,
                                                            null=True)
@@ -55,17 +57,16 @@ class Car(models.Model):
     date_new_pass_year_night = models.DateField('Дата продления годового ночного', blank=True,
                                                 null=True)
 
+    # разовые
     can_update_pass_one_time = models.BooleanField('Можно продлить разовый', blank=True, default=False)
     date_of_application_pass_one_time = models.DateField('Дата подачи заявки на разовый', blank=True,
                                                          null=True)
     requested_pass_one_time = models.BooleanField('Подал заявку на разовый', blank=True, default=False)
-    date_new_pass_one_time = models.DateField('Можно продлить разовый', blank=True,
-                                              null=True)
 
     # проверка годового дневного
     def check_pass_year_day(self):
-        if PassYear.objects.filter(car=self.pk, times_of_day='day').count():
-            pass_year_day = PassYear.objects.get(car=self.pk, times_of_day='day')
+        if PassDayYear.objects.filter(car=self.pk).count():
+            pass_year_day = PassDayYear.objects.filter(car=self.pk).order_by('-end').first()
             self.date_of_application_pass_year_day = pass_year_day.end + timedelta(days=-80)
             if self.date_of_application_pass_year_day <= datetime.now().date():
                 self.can_update_pass_year_day = True
@@ -80,41 +81,40 @@ class Car(models.Model):
 
     # проверка годового ночного
     def check_pass_year_night(self):
-        if PassYear.objects.filter(car=self.pk, times_of_day='night').count():
-            pass_year_night = PassYear.objects.filter(car=self.pk, times_of_day='night').order_by('-end').first()
+        # если есть ночной
+        if PassNightYear.objects.filter(car=self.pk).count():
+            pass_year_night = PassNightYear.objects.filter(car=self.pk).order_by('-end').first()
             self.date_of_application_pass_year_night = pass_year_night.end + timedelta(days=-80)
             if self.date_of_application_pass_year_night <= datetime.now().date():
                 self.can_update_pass_year_night = True
             else:
                 self.can_update_pass_year_night = False
-            self.date_new_pass_year_day = pass_year_night.end + timedelta(days=1)
+            self.date_new_pass_year_night = pass_year_night.end + timedelta(days=1)
         else:
             self.can_update_pass_year_night = True
             self.date_of_application_pass_year_night = datetime.now().date()
-            self.date_new_pass_year_night = None
         self.save()
 
     # проверка разового
     def check_passes_one_time(self):
         if PassOneTime.objects.filter(car=self.pk).count():
             count_one_time_passes = PassOneTime.objects.filter(car=self.pk).count()
+
             # если создана первая запись
             if count_one_time_passes == 1:
                 self.can_update_pass_one_time = True
                 self.date_of_application_pass_one_time = PassOneTime.objects.get(car=self.pk).end + timedelta(days=1)
-                self.date_new_pass_one_time = self.date_of_application_pass_one_time + timedelta(days=1)
             elif count_one_time_passes > 1:
                 penultimate_pass_one_time = PassOneTime.objects.filter(car=self.pk).order_by('-end')[:2][1]
                 if penultimate_pass_one_time.end + timedelta(days=30) > datetime.now().date():
                     self.can_update_pass_one_time = False
                 else:
                     self.can_update_pass_one_time = True
-                self.date_of_application_pass_one_time = penultimate_pass_one_time.end + timedelta(days=1)
-                self.date_new_pass_one_time = self.date_of_application_pass_one_time + timedelta(days=1)
+                self.date_of_application_pass_one_time = penultimate_pass_one_time.end + timedelta(days=32)
         else:
             self.can_update_pass_one_time = True
             self.date_of_application_pass_one_time = datetime.now().date()
-            self.date_new_pass_one_time = self.date_of_application_pass_one_time + timedelta(days=1)
+
         self.save()
 
     def update_passes_status(self):
@@ -134,37 +134,46 @@ class Car(models.Model):
 
 
 class Pass(models.Model):
-    TIMES_OF_DAY = (
-        ('day', 'Дневной'),
-        ('night', 'Ночной')
-    )
-
-    times_of_day = models.CharField('Вид', max_length=10, choices=TIMES_OF_DAY, null=True)
     start = models.DateField('Дата начала', blank=True, null=True)
     end = models.DateField('Дата окончания', blank=True, null=True)
     current = models.BooleanField('Действующий', default=True)
     canceled = models.BooleanField('Аннулирован', default=False)
 
-    class Meta:
-        verbose_name = 'Пропуск'
-        verbose_name_plural = 'Пропуски'
 
-
-class PassYear(Pass):
-    title = models.CharField(default='Годовой пропуск', max_length=20, blank=True)
-    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='year_passes',
-                            verbose_name='Транспортное средство', blank=True,
+class PassDayYear(Pass):
+    title = models.CharField(default='Годовой дневной пропуск', max_length=20, blank=True)
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='year_day_passes',
+                            verbose_name='ТС', blank=True,
                             null=True)
 
     def __str__(self):
-        return f'pass_year_{self.times_of_day}_{self.start}- {self.end}'
+        return f'pass_day_year_{self.start}-{self.end}'
 
     def get_absolute_url(self):
-        return reverse('pass_year', kwargs={'pk': self.pk})
+        return reverse('pass_day_year', kwargs={'pk': self.pk})
 
     class Meta:
-        verbose_name = 'Годовой пропуск'
-        verbose_name_plural = 'Годовые пропуски'
+        verbose_name = 'Годовой дневной пропуск'
+        verbose_name_plural = 'Годовые дневные пропуски'
+        ordering = ['-end']
+
+
+class PassNightYear(Pass):
+    title = models.CharField(default='Годовой ночной пропуск', max_length=20, blank=True)
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='year_night_passes',
+                            verbose_name='ТС', blank=True,
+                            null=True)
+
+    def __str__(self):
+        return f'pass_night_year_{self.start}-{self.end}'
+
+    def get_absolute_url(self):
+        return reverse('pass_night_year', kwargs={'pk': self.pk})
+
+    class Meta:
+        verbose_name = 'Годовой ночной пропуск'
+        verbose_name_plural = 'Годовые ночные пропуски'
+        ordering = ['-end']
 
 
 class PassOneTime(Pass):
@@ -182,3 +191,4 @@ class PassOneTime(Pass):
     class Meta:
         verbose_name = 'Разовый пропуск'
         verbose_name_plural = 'Разовые пропуски'
+        ordering = ['-end']

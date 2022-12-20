@@ -5,14 +5,20 @@ from .models import *
 from .forms import *
 from .mixins import *
 from .utils import *
+from .constants import *
 
 
-def home_page(request):
+def index(request):
+    cars = Car.objects.all()
+    template = 'main\index.html'
+    return render(request, template, locals())
+
+
+def update_passes_status(request):
     cars = Car.objects.all()
     for car in cars:
         car.update_passes_status()
-    template = 'main\index.html'
-    return render(request, template, locals())
+    return redirect('index')
 
 
 class AddCar(CarMixin, CreateView):
@@ -30,8 +36,8 @@ class DetailCar(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(DetailCar, self).get_context_data(**kwargs)
-        context['year_pass_day'] = PassYear.objects.filter(car=self.get_object().pk).filter(times_of_day='day')
-        context['year_pass_night'] = PassYear.objects.filter(car=self.get_object().pk).filter(times_of_day='night')
+        context['year_pass_day'] = PassDayYear.objects.filter(car=self.get_object().pk)
+        context['year_pass_night'] = PassNightYear.objects.filter(car=self.get_object().pk)
         context['one_time_passes'] = PassOneTime.objects.filter(car=self.get_object().pk).order_by('-start')
         return context
 
@@ -42,76 +48,57 @@ class DeleteCar(DeleteView):
     success_url = '/'
 
 
-def add_pass_year(request, pk):
-    times_of_day = 'Годовой пропуск'
-    car = Car.objects.get(pk=pk)
+def add_pass(request, pk_car, form_pass_class):
+    form_pass_class = forms_dict.get(form_pass_class)
+    car = Car.objects.get(pk=pk_car)
     if request.method == "POST":
-        form = AddPassYearForm(request.POST)
+        form = form_pass_class(request.POST)
         if form.is_valid():
             new_pass_year = form.save(commit=False)
             new_pass_year.car = car
             new_pass_year.save()
             return redirect('index')
-    form = AddPassYearForm(initial={
-        'start': datetime.now().date(),
-        'end': datetime.now().date() + timedelta(days=364),
-    })
+    else:
+        if not form_pass_class.__name__ == 'PassOneTimeForm':
+            form = form_pass_class(initial={
+                'start': datetime.now().date(),
+                'end': datetime.now().date() + timedelta(days=364),
+            })
+        else:
+            form = form_pass_class(initial={
+                'start': datetime.now().date(),
+                'end': datetime.now().date() + timedelta(days=10)
+            })
+
     template = 'main\pass\pass_form.html'
     return render(request, template, locals())
 
 
-class UpdatePassYear(UpdateView):
-    model = PassYear
-    form_class = UpdatePassYearForm
-    template_name = 'main\pass\pass_form.html'
-    success_url = '/'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['times_of_day'] = 'Годовой пропуск'
-        return context
-
-
-class DeletePassYear(DeleteView):
-    model = PassYear
-    template_name = 'main\pass\\delete_pass.html'
-    success_url = '/'
-
-
-class DeletePassOneTime(DeleteView):
-    model = PassOneTime
-    template_name = 'main\pass\\delete_pass.html'
-    success_url = '/'
-
-
-def add_pass_one_time(request, pk):
-    times_of_day = 'Разовый пропуск'
-    car = Car.objects.get(pk=pk)
+def update_pass(request, pk, pass_class, form_pass_class):
+    pass_class = passes_class_dict.get(pass_class)
+    form_pass_class = forms_dict.get(form_pass_class)
+    edit_pass = pass_class.objects.get(pk=pk)
     if request.method == "POST":
-        form = AddPassOneTimeForm(request.POST)
+        form = form_pass_class(request.POST, instance=edit_pass)
         if form.is_valid():
-            new_pass = form.save(commit=False)
-            new_pass.car = car
-            new_pass.save()
+            form.save()
             return redirect('index')
-    form = AddPassOneTimeForm(initial={
-        'start': datetime.now().date(),
-        'end': datetime.now().date() + timedelta(days=9),
-    })
+    else:
+        form = form_pass_class(instance=edit_pass)
     template = 'main\pass\pass_form.html'
     return render(request, template, locals())
 
 
-class UpdatePassOneTime(UpdateView):
-    model = PassOneTime
-    form_class = UpdatePassOneTimeForm
-    template_name = 'main\pass\pass_form.html'
-    success_url = '/'
+def delete_pass(request, pass_pk, pass_class):
+    pass_class = passes_class_dict.get(pass_class)
+    pass_instance = pass_class.objects.get(pk=pass_pk)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['times_of_day'] = 'Разовый пропуск'
-        return context
+    if request.method == "POST":
+        pass_instance.delete()
+        return redirect('index')
+
+    template = 'main\pass\\delete_pass.html'
+    return render(request, template, locals())
 
 
 def pass_calendar(request):

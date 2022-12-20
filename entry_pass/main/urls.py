@@ -2,7 +2,8 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('', home_page, name='index'),
+    path('', index, name='index'),
+    path('update_passes_status/', update_passes_status, name='update_passes_status'),
 
     path('owner_list/', OwnerList.as_view(), name='owner_list'),
     path('add_owner/', AddOwner.as_view(), name='add_owner'),
@@ -15,14 +16,35 @@ urlpatterns = [
     path('update_car/<int:pk>/', UpdateCar.as_view(), name='update_car'),
     path('delete_car/<int:pk>/', DeleteCar.as_view(), name='delete_car'),
 
-    path('add_pass_year/<int:pk>/', add_pass_year, name='add_pass_year'),
-    path('update_pass_year/<int:pk>/', UpdatePassYear.as_view(), name='update_pass_year'),
-    path('delete_pass_year/<int:pk>/', DeletePassYear.as_view(), name='delete_pass_year'),
+    path('add_pass_day_year/<int:pk_car>/', add_pass, {'form_pass_class': 'PassDayYearForm'}, name='add_pass_day_year'),
 
-    path('add_pass_one_time/<int:pk>/', add_pass_one_time, name='add_pass_one_time'),
-    path('update_pass_one_time/<int:pk>/', UpdatePassOneTime.as_view(), name='update_pass_one_time'),
-    path('delete_pass_one_time/<int:pk>/', DeletePassOneTime.as_view(), name='delete_pass_one_time'),
+    path('add_pass_night_year/<int:pk_car>/', add_pass, {'form_pass_class': 'PassNightYearForm'},
+         name='add_pass_night_year'),
 
-    path('pass_calendar', pass_calendar, name='pass_calendar'),
+    path('add_pass_one_time/<int:pk_car>/', add_pass, {'form_pass_class': 'PassOneTimeForm'}, name='add_pass_one_time'),
+
+    path('update_pass_day_year/<int:pk>/', update_pass,
+         {'form_pass_class': 'PassDayYearForm',
+          'pass_class': 'PassDayYear'},
+         name='update_pass_day_year'),
+
+    path('update_pass_night_year/<int:pk>/', update_pass,
+         {'form_pass_class': 'PassNightYearForm',
+          'pass_class': 'PassNightYear'},
+         name='update_pass_night_year'),
+
+    path('update_pass_one_time/<int:pk_car>/', update_pass, {'form_pass_class': 'PassOneTimeForm',
+                                                             'pass_class': 'PassOneTime'}, name='update_pass_one_time'),
+
+    path('delete_pass_day_year/<int:pass_pk>/', delete_pass, {'pass_class': 'PassDayYear'},
+         name='delete_pass_day_year'),
+
+    path('delete_pass_night_year/<int:pass_pk>/', delete_pass, {'pass_class': 'PassNightYear'},
+         name='delete_pass_night_year'),
+
+    path('delete_pass_one_time/<int:pass_pk>/', delete_pass, {'pass_class': 'PassOneTime'},
+         name='delete_pass_one_time'),
+
+    path('pass_calendar/', pass_calendar, name='pass_calendar'),
 
 ]

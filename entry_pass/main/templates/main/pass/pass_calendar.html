@@ -21,10 +21,6 @@
         {% if car.date_of_application_pass_year_night %}
             подача заявки -  {{car.date_of_application_pass_year_night|date:"d.m.Y"}}
         {% endif %}
-        {% if car.owner %}
-        <a href="{% url 'owner' car.owner.pk  %}">{{car.owner.name}}</a>
-
-        {% endif %}
         </h5>
 {% endfor %}
 
