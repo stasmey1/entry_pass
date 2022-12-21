@@ -3,13 +3,13 @@ from django.urls import reverse_lazy
 from django.views.generic import *
 from .models import *
 from .forms import *
-from .mixins import *
 from .utils import *
 from .constants import *
 
 
 def index(request):
     cars = Car.objects.all()
+    find_actual_passes(cars)
     template = 'main\index.html'
     return render(request, template, locals())
 
@@ -21,12 +21,16 @@ def update_passes_status(request):
     return redirect('index')
 
 
-class AddCar(CarMixin, CreateView):
-    pass
+class AddCar(CreateView):
+    model = Car
+    template_name = 'main\car\car_form.html'
+    form_class = CarForm
 
 
-class UpdateCar(CarMixin, UpdateView):
-    pass
+class UpdateCar(UpdateView):
+    model = Car
+    template_name = 'main\car\car_form.html'
+    form_class = CarForm
 
 
 class DetailCar(DetailView):
@@ -102,8 +106,10 @@ def delete_pass(request, pass_pk, pass_class):
 
 
 def pass_calendar(request):
-    cars_day = Car.objects.order_by('date_of_application_pass_year_day')
     cars_night = Car.objects.order_by('date_of_application_pass_year_night')
+    find_actual_passes(cars_night)
+    cars_day = Car.objects.order_by('date_of_application_pass_year_day')
+    find_actual_passes(cars_day)
     template = 'main\pass\pass_calendar.html'
     return render(request, template, locals())
 

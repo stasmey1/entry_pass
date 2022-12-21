@@ -2,14 +2,14 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<h1>{{times_of_day}}</h1>
-<div class="col-4">
 
-
-<form action="" method="post">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <input type="submit" name="add pass">
-</form>
+<div class="row justify-content-center">
+    <div class="col-3">
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <input type="submit" name="add pass">
+        </form>
+    </div>
 </div>
 {% endblock content %}

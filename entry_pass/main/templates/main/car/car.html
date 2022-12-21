@@ -9,15 +9,25 @@
                  viewBox="0 0 16 16">
                 <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
             </svg>
-            {{car.name}} <a href="{% url 'update_car' car.pk %}">обновить</a>/
-            <a href="{% url 'delete_car' car.pk  %}">удалить</a></h2>
+
+
+
+            {{car.name}} <a class="btn btn-primary" href="{% url 'update_car' car.pk %}">обновить</a>
+            <a class="btn btn-danger" href="{% url 'delete_car' car.pk  %}">удалить</a></h2>
     </div>
     <div class="card-body">
         <blockquote class="blockquote mb-0">
             {% if car.owner %}
             <a href="{% url 'owner' car.owner.pk %}">{{car.owner.name}}</a>
+
+            {% if car.owner.contacts %}
             <p>{{car.owner.contacts}}</p>
+            {% endif %}
+
+            {% if car.owner.info %}
             <p>{{car.owner.info}}</p>
+            {% endif %}
+
             {% endif %}
         </blockquote>
     </div>
@@ -36,22 +46,24 @@
                 годовой дневной <a href="{% url 'add_pass_day_year' car.pk %}" class="btn btn-primary">+</a>
             </h5>
             <div class="card-body">
-                <h5 class="card-title">
+                <div class="card-title">
+
                     {% if car.year_day_passes %}
 
                     {% for pass in car.year_day_passes.all %}
+                    <div class="info_pass mb-2">
+                        <span style="font-size: 16pt">{{pass.start|date:"d.m.Y"}} - {{pass.end|date:"d.m.Y"}}</span>
 
-                    {{pass.start|date:"d.m.Y"}} - {{pass.end|date:"d.m.Y"}}
-
-                    <a href="{% url 'update_pass_day_year' pass.pk %}" class="btn btn-primary btn-sm">обновить</a>
-                    <a href="{% url 'delete_pass_day_year' pass.pk %}" class="btn btn-danger btn-sm">удалить</a>
+                        <a href="{% url 'update_pass_day_year' pass.pk %}" class="btn btn-primary btn-sm">обновить</a>
+                        <a href="{% url 'delete_pass_day_year' pass.pk %}" class="btn btn-danger btn-sm">удалить</a>
+                    </div>
                     {% endfor %}
 
                     {% endif %}
 
                     Можно продлить c {{car.date_of_application_pass_year_day|date:"d.m.Y"}}
-                </h5>
 
+                </div>
             </div>
         </div>
     </div>
@@ -69,21 +81,21 @@
             </h5>
 
             <div class="card-body">
-                <h5 class="card-title">
+                <div class="card-title">
                     {% if car.year_night_passes %}
                     {% for pass in car.year_night_passes.all %}
+                    <div class="info_pass mb-2">
 
-                    <span style="font-size: 14pt">{{pass.start|date:"d.m.Y"}} - {{pass.end|date:"d.m.Y"}}</span>
+                        <span style="font-size: 16pt">{{pass.start|date:"d.m.Y"}} - {{pass.end|date:"d.m.Y"}}</span>
 
-                    <a href="{% url 'update_pass_night_year' pass.pk %}" class="btn btn-primary btn-sm">обновить</a>
-                    <a href="{% url 'delete_pass_night_year' pass.pk %}" class="btn btn-danger btn-sm">удалить</a>
-                    <br>
-
+                        <a href="{% url 'update_pass_night_year' pass.pk %}" class="btn btn-primary btn-sm">обновить</a>
+                        <a href="{% url 'delete_pass_night_year' pass.pk %}" class="btn btn-danger btn-sm">удалить</a>
+                    </div>
+                    {% endfor %}
                     Можно продлить c {{car.date_of_application_pass_year_night|date:"d.m.Y"}}
 
-                    {% endfor %}
                     {% endif %}
-                </h5>
+                </div>
             </div>
         </div>
     </div>
@@ -107,8 +119,8 @@
                 {% if car.one_time_passes %}
                 {% for pass in car.one_time_passes.all %}
                 <div class="row mb-1">
-                    <div class="col-6">
-                        {{pass.start|date:"d.m.Y"}} - {{pass.end|date:"d.m.Y"}}
+                    <div class="col-8">
+                        <span style="font-size: 16pt">{{pass.start|date:"d.m.Y"}} - {{pass.end|date:"d.m.Y"}}</span>
                     </div>
                     <div class="col">
                         <a href="{% url 'delete_pass_one_time' pass.pk %}"
@@ -127,41 +139,5 @@
         </div>
     </div>
 </div>
-
-_________дневные годовые
-<p></p>
-Можно продлить годовой дневной {{car.can_update_pass_year_day}}
-<p></p>
-Дата подачи заявки на годовой дневной {{car.date_of_application_pass_year_day}}
-<p></p>
-Подал заявку на годовой дневной {{car.requested_year_day_pass}}
-<p></p>
-Дата продления годового дневного' {{car.date_new_pass_year_day}}
-
-
-<p></p>
-_________ночные годовые
-<p></p>
-
-Можно продлить годовой ночной {{car.can_update_pass_year_night}}
-<p></p>
-Дата подачи заявки на годовой ночной {{car.date_of_application_pass_year_night}}
-<p></p>
-Подал заявку на годовой ночной {{car.requested_year_night_pass}}
-<p></p>
-Дата продления годового ночного {{car.date_new_pass_year_night}}
-
-
-<p></p>
-_________временные
-<p></p>
-Можно продлить разовый {{car.can_update_pass_one_time}}
-<p></p>
-Дата подачи заявки на разовый {{car.date_of_application_pass_one_time}}
-<p></p>
-Подал заявку на разовый {{car.requested_pass_one_time}}
-
-
-
 
 {% endblock content %}
