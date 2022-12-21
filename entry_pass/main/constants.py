@@ -1,6 +1,6 @@
 from .forms import *
 
-forms_dict = {
+FORMS_DICT = {
     'PassDayYearForm': PassDayYearForm,
     'PassNightYearForm': PassNightYearForm,
     'PassOneTimeForm': PassOneTimeForm,
@@ -8,7 +8,7 @@ forms_dict = {
     'OwnerForm': OwnerForm
                     }
 
-passes_class_dict = {'PassDayYear': PassDayYear,
+PASSES_CLASS_DICT = {'PassDayYear': PassDayYear,
                      'PassNightYear': PassNightYear,
                      'PassOneTime': PassOneTime
                      }

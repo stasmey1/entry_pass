@@ -53,7 +53,7 @@ class DeleteCar(DeleteView):
 
 
 def add_pass(request, pk_car, form_pass_class):
-    form_pass_class = forms_dict.get(form_pass_class)
+    form_pass_class = FORMS_DICT.get(form_pass_class)
     car = Car.objects.get(pk=pk_car)
     if request.method == "POST":
         form = form_pass_class(request.POST)
@@ -79,8 +79,8 @@ def add_pass(request, pk_car, form_pass_class):
 
 
 def update_pass(request, pk, pass_class, form_pass_class):
-    pass_class = passes_class_dict.get(pass_class)
-    form_pass_class = forms_dict.get(form_pass_class)
+    pass_class = PASSES_CLASS_DICT.get(pass_class)
+    form_pass_class = FORMS_DICT.get(form_pass_class)
     edit_pass = pass_class.objects.get(pk=pk)
     if request.method == "POST":
         form = form_pass_class(request.POST, instance=edit_pass)
@@ -94,7 +94,7 @@ def update_pass(request, pk, pass_class, form_pass_class):
 
 
 def delete_pass(request, pass_pk, pass_class):
-    pass_class = passes_class_dict.get(pass_class)
+    pass_class = PASSES_CLASS_DICT.get(pass_class)
     pass_instance = pass_class.objects.get(pk=pass_pk)
 
     if request.method == "POST":
