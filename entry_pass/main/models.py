@@ -121,6 +121,7 @@ class Car(models.Model):
         self.check_pass_year_day()
         self.check_pass_year_night()
         self.check_passes_one_time()
+        return self
 
     def __str__(self):
         return self.name

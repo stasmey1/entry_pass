@@ -5,6 +5,7 @@ from .models import *
 from .forms import *
 from .utils import *
 from .constants import *
+from django.core.mail import send_mail
 
 
 def index(request):
@@ -25,6 +26,14 @@ class AddCar(CreateView):
     model = Car
     template_name = 'main\car\car_form.html'
     form_class = CarForm
+
+    def form_valid(self, form):
+        register_number = form.cleaned_data['register_number'] or ''
+        send_mail(subject='+ТС',
+                  message='Добавлено трснспортное средство' + register_number,
+                  from_email='entry2003@gmail.com',
+                  recipient_list=['stasmey1@gmail.com'])
+        super().form_valid(form)
 
 
 class UpdateCar(UpdateView):
